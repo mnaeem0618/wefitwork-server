@@ -46,7 +46,7 @@ const server = https.createServer(app);
 
 
 var dbConnect = {
-  host:'localhost', user: 'root', database: 'herosol_wefitwork' , password : ""
+  host:'localhost', user: 'root', database: 'shapperly' , password : "1122@@Jj"
 }
 
 

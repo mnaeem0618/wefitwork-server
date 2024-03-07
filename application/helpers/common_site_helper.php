@@ -687,6 +687,22 @@ function saveMcoverFaqs($vals, $maintenance_cover_id)
     }
 }
 
+function saveMcPrices($vals, $maintenance_cover_id)
+{
+    //pr($vals);
+    if (countlength((array)$vals['type_of_house']) > 0) {
+        for ($i = 0; $i < countlength($vals['type_of_house']); $i++) {
+            $arr['maintenance_cover_id'] = $maintenance_cover_id;
+            $arr['type_of_house'] = ($vals['type_of_house'][$i] != '') ? $vals['type_of_house'][$i] : '';
+            $arr['price'] = ($vals['price'][$i] != '') ? $vals['price'][$i] : '';
+            $arr['sort_order'] = ($vals['sort_order'][$i] != '') ? $vals['sort_order'][$i] : '';
+            $CI = get_instance();
+            $CI->db->set($arr);
+            $CI->db->insert('mc_prices');
+        }
+    }
+}
+
 function getIncluded($maintenance_cover_id)
 {
     $CI = get_instance();
@@ -711,6 +727,15 @@ function getMcoverFaqs($maintenance_cover_id)
     $CI->db->where('maintenance_cover_id', $maintenance_cover_id);
     $CI->db->order_by('sort_order', 'ASC');
     $query = $CI->db->get('mcover_faqs');
+    return $query->result();
+}
+
+function getMcoverPrices($maintenance_cover_id)
+{
+    $CI = get_instance();
+    $CI->db->where('maintenance_cover_id', $maintenance_cover_id);
+    $CI->db->order_by('sort_order', 'ASC');
+    $query = $CI->db->get('mc_prices');
     return $query->result();
 }
 

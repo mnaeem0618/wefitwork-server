@@ -7,30 +7,52 @@ class Auth extends MY_Controller{
         $this->load->model('Member_model', 'member');
         $this->load->library('Sendinblue', 'sendinblue');
         $this->load->library('my_paystack_lib');
+        $this->load->library('twilio_lib');
     }
 
     function sign_up(){
-
+        // pr($this->input->post());
         if($this->input->post()){
             $res = [];
             $res['status'] = 0;
             $res['validationErrors'] = '';
             $this->form_validation->set_rules('fullname', 'Full Name', 'trim|required|min_length[2]', ['min_length' => 'Full Name should contains atleast 2 letters.']);
-            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email|callback_is_email_exists', ['valid_email' => 'Please enter a valid email.','is_email_exists' => 'This email is already in use.']);
-            $this->form_validation->set_rules('phone', 'Phone', 'trim|required');    
+            $this->form_validation->set_rules('email', 'Email/Phone', 'trim|required|callback_validate_email_or_phone|callback_is_email_exists', [
+                'required' => 'Email/Phone is required.',
+                'validate_email_or_phone' => 'Please enter a valid email or a valid Nigerian phone number.',
+                'is_email_exists' => 'This email/phone is already in use.'
+            ]);
+            // $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email|callback_is_email_exists', ['valid_email' => 'Please enter a valid email.','is_email_exists' => 'This email is already in use.']);
+            // $this->form_validation->set_rules('phone', 'Phone', 'trim|required');    
             $this->form_validation->set_rules('password', 'Password', 'trim|required|min_length[6]', ['min_length' => 'Password should be atleast 6 characters long.']);
             if ($this->form_validation->run() === FALSE) {
                 $res['validationErrors'] = validation_errors();
             }else{
                 $post = html_escape($this->input->post());
                 // $response = $this->verifyRECAPTCHA($post['recaptcha_token']);
-                $response = true;
-                // pr($post);
-                if($response){
-					$six_digit_random_number = random_int(100000, 999999);
+
+                $emailRegex = '/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+                // $phoneRegex = '/^\+234\d{10}$/';
+                $phoneRegex = '/^\+1[2-9]\d{2}[2-9](?!11)\d{6}$/';                
+                if (preg_match($emailRegex, $post['email'])) {
+                    $res['contact_type'] = 'email';
+                } elseif (preg_match($phoneRegex, $post['email'])) {
+                    $res['contact_type'] = 'phone';
+                } else {
+                    // Invalid input, handle accordingly
+                    $res['status'] = 0;
+                    $res['validationErrors'] = 'Invalid email or phone format';
+                    echo json_encode($res);
+                    exit;
+                }
+
+                $mem = null;
+				$mem_id = null;
+
+                if($post['contact_type'] == "email" && $res['contact_type'] == "email"){
+                    $six_digit_random_number = random_int(100000, 999999);
 					$expire_time = date('Y-m-d H:i:s', strtotime('+12 hours'));
-					$mem = null;
-					$mem_id = null;
+					
 					$mem = $this->member->getNonVerifiedUser(trim($post['email']));
 
 					if($mem){
@@ -41,7 +63,6 @@ class Auth extends MY_Controller{
 						'mem_type'  => $post['mem_type'],
 						'mem_fname' => ucfirst($post['fullname']),
 						'mem_email' => $post['email'],
-						'mem_phone' => $post['phone'],
 						'mem_pswd'  => md5($post['password']),
 						'mem_verification_code'  => $six_digit_random_number,
 						'mem_code_expire'  => $expire_time,
@@ -54,13 +75,14 @@ class Auth extends MY_Controller{
                     $row = $this->member->getMember($mem_id);
                     // pr($mem_id);
 					$mem_data = array('name' => ucfirst($post['fullname']), "email" => $post['email'], "code" => $six_digit_random_number);
-					$this->send_signup_code($mem_data);
+                    $this->send_signup_code($mem_data);
+                    
 					$res['email'] = trim($post['email']);
 
 					if($mem_id){
                             $result = $this->my_paystack_lib->create_customer($row->mem_email, $row->mem_fname);
                             $customer_data = json_decode($result);
-                        // pr($customer_data);
+                        // pr($result);
                             if($customer_data->data->customer_code !== '' || $customer_data->data->customer_code){
                                 $this->member->update(['mem_paystack_customer_code' => $customer_data->data->customer_code], array('mem_id' => $mem_id));
                                 $res['customer_code'] = $customer_data->data->customer_code;
@@ -73,13 +95,41 @@ class Auth extends MY_Controller{
                         $res['mem_professionl_profile'] = $row->mem_professionl_profile;
 						$res['status'] = 1;
 					}
-                }else{
-					http_response_code(400);
-					$tokenResponse['status'] = 0;
-					$tokenResponse['error'] = 'invalid_request';
-					echo json_encode($tokenResponse);
-					exit; 
-				}
+                }elseif($post['contact_type'] == "phone" && $res['contact_type'] == "phone"){
+
+					$mem = $this->member->getNonVerifiedUserByPhone(trim($post['email']));
+
+					if($mem){
+						$mem_id = $mem->mem_id;
+					}
+
+					$save_data = [
+						'mem_type'  => $post['mem_type'],
+						'mem_fname' => ucfirst($post['fullname']),
+						'mem_phone' => $post['email'],
+						'mem_pswd'  => md5($post['password']),
+						'mem_status'        => 1,
+						'mem_last_login'    => date('Y-m-d h:i:s'),
+                        'mem_professionl_profile' => 0,
+					];
+                    // pr($save_data);
+					$mem_id = $this->member->save($save_data, $mem_id);
+                    $row = $this->member->getMember($mem_id);
+                    					
+                    $this->twilio_lib->sendVerificationCode($post['email']);
+                    
+					$res['email'] = trim($post['email']);
+
+					if($mem_id){
+                            
+                        $res['mem_type'] = $row->mem_type;
+                        $res['mem_professionl_profile'] = $row->mem_professionl_profile;
+						$res['status'] = 1;
+					}
+                }
+                    
+					
+                
             }
             echo json_encode($res);
             exit;
@@ -102,36 +152,74 @@ class Auth extends MY_Controller{
                 $post = html_escape($this->input->post());
                 $code = trim($post['code']);
                 $email = trim($post['email']);
-                $mem = $this->master->getRow('members', ['mem_verification_code'=> $code, 'mem_email'=> $email, 'mem_verified'=> 0]);
-                if(countlength((array)$mem) > 0){
-                    $current_time = strtotime(date('Y-m-d H:i:s'));
-                    $expire_time = strtotime($mem->mem_code_expire);
-                    if($current_time > $expire_time){
-                        $res['validationErrors'] = '<p>Verification code has expired. Please click Resend Email to get a new code</p>';
-                        $res['status'] = 0; 
-                    }else{
-                        
-                        $save_data = [
-                            'mem_verification_code' => NULL,
-                            'mem_verified' => 1,
-                            'mem_last_login'    => date('Y-m-d h:i:s'),
+
+                if($post['contact_type'] == "email"){
+                    $mem = $this->master->getRow('members', ['mem_verification_code'=> $code, 'mem_email'=> $email, 'mem_verified'=> 0]);
+                    if(countlength((array)$mem) > 0){
+                        $current_time = strtotime(date('Y-m-d H:i:s'));
+                        $expire_time = strtotime($mem->mem_code_expire);
+                        if($current_time > $expire_time){
+                            $res['validationErrors'] = '<p>Verification code has expired. Please click Resend Email to get a new code</p>';
+                            $res['status'] = 0; 
+                        }else{
                             
-                        ];
-                        $mem_id = $this->member->save($save_data, $mem->mem_id, 'mem_id');
-                        // $this->sendinblue->create_contact($mem);
-                        // $mem_data = array('name' => $mem->mem_fname . ' ' . $mem->mem_lname, "email" => $mem->mem_email);
-                        // $this->send_verification_confirmation($mem_data);
-                        $res['authToken'] =  $this->createAuthToken($mem, $this->input->ip_address());
+                            $save_data = [
+                                'mem_verification_code' => NULL,
+                                'mem_verified' => 1,
+                                'mem_last_login'    => date('Y-m-d h:i:s'),
+                                
+                            ];
+                            $mem_id = $this->member->save($save_data, $mem->mem_id, 'mem_id');
+                            // $this->sendinblue->create_contact($mem);
+                            // $mem_data = array('name' => $mem->mem_fname . ' ' . $mem->mem_lname, "email" => $mem->mem_email);
+                            // $this->send_verification_confirmation($mem_data);
+                            $res['authToken'] =  $this->createAuthToken($mem, $this->input->ip_address());
+                            $res['mem_type']  = $mem->mem_type;
+                            $res['mem_professionl_profile'] = $mem->mem_professionl_profile;
+                            if($mem_id){
+                                $res['status'] = 1;
+                            }
+                        }
+                    }else{
+                        $res['validationErrors'] = '<p>Invalid or expired verification code.</p>';
+                        $res['status'] = 0;
+                    }
+                }elseif($post['contact_type'] == "phone"){
+                    $mem = $this->master->getRow('members', ['mem_phone'=> $email, 'mem_verified'=> 0]);
+                if(countlength((array)$mem) > 0){
+
+                    $verificationResult = $this->twilio_lib->verifyCode($email, $code);
+                    // pr($verificationResult);
+                        
+                        if ($verificationResult->status === 'approved') {
+                            $save_data = [
+                                'mem_verification_code' => NULL,
+                                'mem_verified' => 1,
+                                'mem_last_login'    => date('Y-m-d h:i:s'),
+                                'mem_phone_verified' => 1
+                            ];
+                            $mem_id = $this->member->save($save_data, $mem->mem_id, 'mem_id');
+
+                            $res['msg'] = "Phone number verified successfully";
+                            $res['status'] = 1;
+
+                            $res['authToken'] =  $this->createAuthToken($mem, $this->input->ip_address());
                         $res['mem_type']  = $mem->mem_type;
                         $res['mem_professionl_profile'] = $mem->mem_professionl_profile;
-                        if($mem_id){
-                            $res['status'] = 1;
+                       
+                        } else {
+                            $res['validationErrors'] = "Verification Failed Please Resend code";
+                            $res['status'] = 0;
                         }
-                    }
+
+                    
                 }else{
                     $res['validationErrors'] = '<p>Invalid or expired verification code.</p>';
                     $res['status'] = 0;
-                } 
+                }
+                }
+
+                 
             }
             echo json_encode($res);
             exit;
@@ -144,14 +232,15 @@ class Auth extends MY_Controller{
             $res['status'] = 0;
             $res['validationErrors'] = '';
             // pr($this->input->post());
-            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email', ['valid_email' => 'Please enter a valid email.']);
+            $this->form_validation->set_rules('email', 'Email', 'trim|required');
             
             if ($this->form_validation->run() === FALSE) {
                 $res['validationErrors'] = validation_errors();
             }else{
                 $post = html_escape($this->input->post());
 
-					$six_digit_random_number = random_int(100000, 999999);
+                if($post['contact_type'] == "email"){
+                    $six_digit_random_number = random_int(100000, 999999);
 					$expire_time = date('Y-m-d H:i:s', strtotime('+12 hours'));
 					$mem = null;
 					$mem_id = null;
@@ -182,6 +271,31 @@ class Auth extends MY_Controller{
 						$res['status'] = 1;
                         $res['msg'] = 'Verification Code Re sent successfully. Please check your email for verification code.';
 					}
+                }elseif($post['contact_type'] == "phone"){
+                    
+					$mem = null;
+					$mem_id = null;
+					$mem = $this->member->getNonVerifiedUserByPhone(trim($post['email']));
+
+					if($mem)
+					{
+						$mem_id = $mem->mem_id;
+					}else{
+                        $res['status']=0;
+                        $res['msg']='Phone not found';
+                        echo json_encode($res);
+                        exit;
+                    }
+					$this->twilio_lib->sendVerificationCode($post['email']);
+
+					$res['email'] = trim($post['email']);
+					if($mem_id)
+					{
+						$res['status'] = 1;
+                        $res['msg'] = 'Verification Code Re sent successfully. Please check your phone for verification code.';
+					}
+                }
+					
                
             }
             echo json_encode($res);
@@ -196,7 +310,10 @@ class Auth extends MY_Controller{
             $res['status'] = 0;
             $res['validationErrors'] = '';
             $res['msg'] = '';
-            $this->form_validation->set_rules('email', 'Email', 'required|valid_email');
+            $this->form_validation->set_rules('email', 'Email/Phone', 'trim|required', [
+                'required' => 'Email/Phone is required.',
+                
+            ]);
             $this->form_validation->set_rules('password', 'Password', 'required');
             if ($this->form_validation->run() === FALSE) {
                 $res['validationErrors'] = validation_errors();
@@ -204,27 +321,66 @@ class Auth extends MY_Controller{
                 $data = $this->input->post();
                 // $checkEmailExist = $this->member->authenticateEmail($data['email']);
 
-                // if(countlength((array)$checkEmailExist)){
-                    $row = $this->member->authenticate($data['email'], $data['password']);
-                    
-                    if (countlength((array)$row) > 0) {
-                        if ($row->mem_status == 0) {
-                            $res['status'] = 0;
-                            $res['validationErrors'] = '<p>Your account has been deactivated by the admin.</p>';
-                        }else{
-                            $this->member->save(['mem_first_time_login' => 'no'], $row->mem_id);
-                            $this->member->update_last_login($row->mem_id, $remember_token);
+                $emailRegex = '/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+                // $phoneRegex = '/^\+234\d{10}$/';
+                $phoneRegex = '/^\+1[2-9]\d{2}[2-9](?!11)\d{6}$/';               
 
-                            $res['authToken'] = $this->createAuthToken($row, $this->input->ip_address());
-                            $res['mem_type']  = $row->mem_type;
-                            $res['mem_professionl_profile'] = $row->mem_professionl_profile;
-                            $res['memData'] = $this->member->getMemData($mem_id);
-                            $res['status'] = 1;
+                if (preg_match($emailRegex, $data['email'])) {
+                    $res['contact_type'] = 'email';
+                } elseif (preg_match($phoneRegex, $data['email'])) {
+                    $res['contact_type'] = 'phone';
+                } else {
+                    $res['status'] = 0;
+                    $res['validationErrors'] = 'Invalid email or phone format';
+                    echo json_encode($res);
+                    exit;
+                }
+                // if(countlength((array)$checkEmailExist)){
+                    if($data['contact_type'] == "email" && $res['contact_type'] == "email"){
+                        $row = $this->member->authenticate($data['email'], $data['password']);
+                    
+                        if (countlength((array)$row) > 0) {
+                            if ($row->mem_status == 0) {
+                                $res['status'] = 0;
+                                $res['validationErrors'] = '<p>Your account has been deactivated by the admin.</p>';
+                            }else{
+                                $this->member->save(['mem_first_time_login' => 'no'], $row->mem_id);
+                                $this->member->update_last_login($row->mem_id, $remember_token);
+    
+                                $res['authToken'] = $this->createAuthToken($row, $this->input->ip_address());
+                                $res['mem_type']  = $row->mem_type;
+                                $res['mem_professionl_profile'] = $row->mem_professionl_profile;
+                                $res['memData'] = $this->member->getMemData($row->mem_id);
+                                $res['status'] = 1;
+                            }
+                        } else {
+                            $res['status'] = 0;
+                            $res['validationErrors'] = '<p>Incorrect email or password.</p>';
                         }
-                    } else {
-                        $res['status'] = 0;
-                        $res['validationErrors'] = '<p>Incorrect email or password.</p>';
+                    }elseif($data['contact_type'] == "phone" && $res['contact_type'] == "phone"){
+                        $row = $this->member->authenticateByPhone($data['email'], $data['password']);
+                    
+                        if (countlength((array)$row) > 0) {
+                            if ($row->mem_status == 0) {
+                                $res['status'] = 0;
+                                $res['validationErrors'] = '<p>Your account has been deactivated by the admin.</p>';
+                            }else{
+                                $this->member->save(['mem_first_time_login' => 'no'], $row->mem_id);
+                                $this->member->update_last_login($row->mem_id, $remember_token);
+    
+                                $res['authToken'] = $this->createAuthToken($row, $this->input->ip_address());
+                                $res['mem_type']  = $row->mem_type;
+                                $res['mem_professionl_profile'] = $row->mem_professionl_profile;
+                                $res['memData'] = $this->member->getMemData($row->mem_id);
+                                $res['status'] = 1;
+                            }
+                        } else {
+                            $res['status'] = 0;
+                            $res['validationErrors'] = '<p>Incorrect email or password.</p>';
+                        }
                     }
+
+                    
                 // }else{
                 //     $res['status'] = 0;
                 //     $res['validationErrors'] = '<p>Account does not exist.</p>';
@@ -377,13 +533,37 @@ class Auth extends MY_Controller{
     } 
 
     public function is_email_exists($email){
-        $email = $this->master->getRow('members', ['mem_email'=> $email]);
+
+        $emailRegex = '/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+                // $phoneRegex = '/^\+234\d{10}$/';
+                $phoneRegex = '/^\+1[2-9]\d{2}[2-9](?!11)\d{6}$/';                
+                if (preg_match($emailRegex, $email)) {
+                    $email = $this->master->getRow('members', ['mem_email'=> $email]);
+                } elseif (preg_match($phoneRegex, $email)) {
+                    $email = $this->master->getRow('members', ['mem_phone'=> $email]);
+                }
+
+        
 		if(empty($email)){
 			return TRUE;	
 		}
 		return FALSE;
     }
 
+    public function validate_email_or_phone($value) {
+        // Regular expression to validate email or Nigerian phone number
+        $emailRegex = '/^[\w.%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/';
+        // $phoneRegex = '/^\+234[\d -]{10}$/';
+$phoneRegex = '/^\+1[2-9]\d{2}[2-9](?!11)\d{6}$/';
+    
+        if (preg_match($emailRegex, $value) || preg_match($phoneRegex, $value)) {
+            return true; // Valid email or phone number
+        } else {
+            return false; // Invalid email or phone number
+        }
+    }
+
+    
     
 
 

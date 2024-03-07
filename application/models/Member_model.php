@@ -461,6 +461,18 @@ class Member_model extends CRUD_Model
         return $query->row();
     }
 
+    function authenticateByPhone($mem_phone, $mem_pswd, $mem_type = NULL) {
+        $mem_pswd = md5($mem_pswd);
+        if (!empty($mem_type))
+            $this->db->where('mem_type', $mem_type);
+
+        $this->db->where('mem_phone', $mem_phone);
+        $this->db->where('mem_pswd', $mem_pswd);
+        $query = $this->db->get($this->table_name);
+        // return $this->db->last_query();
+        return $query->row();
+    }
+
     function authenticateEmail($mem_email) {
         $this->db->where('mem_email', $mem_email);
         $this->db->where('mem_verified', '1');
@@ -484,6 +496,14 @@ class Member_model extends CRUD_Model
 	function getNonVerifiedUser($email)
 	{
         $this->db->where('mem_email', $email);
+        $this->db->where('mem_verified', 0);
+        $query = $this->db->get($this->table_name);
+        return $query->row();
+	}
+
+    function getNonVerifiedUserByPhone($phone)
+	{
+        $this->db->where('mem_phone', $phone);
         $this->db->where('mem_verified', 0);
         $query = $this->db->get($this->table_name);
         return $query->row();

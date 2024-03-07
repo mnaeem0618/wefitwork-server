@@ -516,7 +516,17 @@
             </li>
 
 
+            <li class="opened <?= ($this->uri->segment(2) == 'states') ? 'active' : '' ?>">
 
+<a href="<?= site_url(ADMIN . '/states') ?>">
+
+<i class="fa fa-dot-circle-o" aria-hidden="true"></i>
+
+    <span class="title">States</span>
+
+</a>
+
+</li>
             
 
 

@@ -79,9 +79,9 @@ if ($_SERVER['HTTP_HOST'] != 'localhost') {
 	$db['default'] = array(
 		'dsn'	   => '',
 		'hostname' => 'localhost',
-		'username' => 'herosol_naeem',
-		'password' => '!qZ!c^g!r-4Y',
-		'database' => 'herosol_wefit'
+		'username' => 'root',
+		'password' => '1122@@Jj',
+		'database' => 'shapperly'
 	);
 
 } else {

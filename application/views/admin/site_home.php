@@ -76,38 +76,38 @@
                     <div class="clearfix"></div>
 
                     <div class="col-md-3">
-                    <div class="form-group">
+                        <div class="form-group">
 
-                        <div class="panel panel-primary" data-collapsed="0">
-                            <div class="panel-heading">
-                                <div class="panel-title">
-                                   Mobile Banner Image
-                                </div>
-                                <div class="panel-options">
-                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-                                </div>
-                            </div>
-                            <div class="panel-body">
-                                <div class="fileinput fileinput-new" data-provides="fileinput">
-                                    <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;" data-trigger="fileinput">
-                                        <img src="<?= !empty($row['image7']) ? get_site_image_src("images/", $row['image7']) : base_url('assets/images/no-image.svg') ?>" alt="--">
+                            <div class="panel panel-primary" data-collapsed="0">
+                                <div class="panel-heading">
+                                    <div class="panel-title">
+                                        Mobile Banner Image
                                     </div>
-                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
-                                    <div>
-                                        <span class="btn btn-white btn-file">
-                                            <span class="fileinput-new">Select image</span>
-                                            <span class="fileinput-exists">Change</span>
-                                            <input type="file" name="image7" accept="image/*" <?php if (empty($row['image7'])) {
-                                                                                                    echo 'required=""';
-                                                                                                } ?>>
-                                        </span>
-                                        <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                    <div class="panel-options">
+                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
+                                    </div>
+                                </div>
+                                <div class="panel-body">
+                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                        <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;" data-trigger="fileinput">
+                                            <img src="<?= !empty($row['image7']) ? get_site_image_src("images/", $row['image7']) : base_url('assets/images/no-image.svg') ?>" alt="--">
+                                        </div>
+                                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
+                                        <div>
+                                            <span class="btn btn-white btn-file">
+                                                <span class="fileinput-new">Select image</span>
+                                                <span class="fileinput-exists">Change</span>
+                                                <input type="file" name="image7" accept="image/*" <?php if (empty($row['image7'])) {
+                                                                                                        echo 'required=""';
+                                                                                                    } ?>>
+                                            </span>
+                                            <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
 
                     <div class="clearfix"></div>
 
@@ -251,7 +251,7 @@
 
 
 
-                                    
+
 
 
 
@@ -264,9 +264,7 @@
                             <?php
 
                                 $banners_count++;
-
                             }
-
                         } else { ?>
 
 
@@ -357,7 +355,7 @@
 
                                 </div>
 
-                               
+
 
 
 
@@ -415,75 +413,72 @@
 
                         <div class="clearfix"></div>
 
-<br>
+                        <br>
 
                         <div class="col-md-12">
 
-                        <h4> Info Cards</h4>
+                            <h4> Info Cards</h4>
 
 
 
                         </div>
 
-                            <?php $sec2_cards = 0;
+                        <?php $sec2_cards = 0;
 
-                            for ($i = 1; $i <= 3; $i++) : ++$sec2_cards; ?>
+                        for ($i = 1; $i <= 3; $i++) : ++$sec2_cards; ?>
 
-                                <div class="col-md-4">
+                            <div class="col-md-4">
 
-                                    <div class="form-group">
+                                <div class="form-group">
 
-                                        <div class="col-md-12">
+                                    <div class="col-md-12">
 
-                                            <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel panel-primary" data-collapsed="0">
 
-                                                <div class="panel-heading">
+                                            <div class="panel-heading">
 
-                                                    <div class="panel-title">
+                                                <div class="panel-title">
 
-                                                        Icon <?= $sec2_cards ?>
-
-                                                    </div>
-
-                                                    <div class="panel-options">
-
-                                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-
-                                                    </div>
+                                                    Icon <?= $sec2_cards ?>
 
                                                 </div>
 
-                                                <div class="panel-body">
+                                                <div class="panel-options">
 
-                                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
 
-                                                        <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;background:#ddd" data-trigger="fileinput">
+                                                </div>
 
-                                                            <img src="<?= get_site_image_src("images/", $row['image' . $i]) ?>" alt="--">
+                                            </div>
 
-                                                        </div>
+                                            <div class="panel-body">
 
-                                                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
+                                                <div class="fileinput fileinput-new" data-provides="fileinput">
 
-                                                        <div>
+                                                    <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;background:#ddd" data-trigger="fileinput">
 
-                                                            <span class="btn btn-white btn-file">
+                                                        <img src="<?= get_site_image_src("images/", $row['image' . $i]) ?>" alt="--">
 
-                                                                <span class="fileinput-new">Select image</span>
+                                                    </div>
 
-                                                                <span class="fileinput-exists">Change</span>
+                                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
 
-                                                                <input type="file" name="image<?= $i ?>" accept="image/*" <?php if (empty($row['image' . $i])) {
+                                                    <div>
 
-                                                                                                                                echo 'required=""';
+                                                        <span class="btn btn-white btn-file">
 
-                                                                                                                            } ?>>
+                                                            <span class="fileinput-new">Select image</span>
 
-                                                            </span>
+                                                            <span class="fileinput-exists">Change</span>
 
-                                                            <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                                            <input type="file" name="image<?= $i ?>" accept="image/*" <?php if (empty($row['image' . $i])) {
 
-                                                        </div>
+                                                                                                                            echo 'required=""';
+                                                                                                                        } ?>>
+
+                                                        </span>
+
+                                                        <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
 
                                                     </div>
 
@@ -493,41 +488,43 @@
 
                                         </div>
 
-
-
-                                        <div class="clearfix"></div>
-
-
-
-                                        <div class="col-md-12">
-
-                                            <label for="sec2_img_card_heading<?= $i ?>" class="control-label"> Heading <?= $sec2_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec2_img_card_heading<?= $i ?>" class="form-control" value="<?= $row['sec2_img_card_heading' . $i] ?>" />
-
-                                        </div>
+                                    </div>
 
 
 
-                                        <div class="col-md-12">
-
-                                            <label for="sec2_img_card_tagline<?= $i ?>" class="control-label"> Tagline <?= $sec2_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec2_img_card_tagline<?= $i ?>" class="form-control" value="<?= $row['sec2_img_card_tagline' . $i] ?>" />
-
-                                        </div>
+                                    <div class="clearfix"></div>
 
 
 
-                                        <div class="clearfix"></div>
+                                    <div class="col-md-12">
+
+                                        <label for="sec2_img_card_heading<?= $i ?>" class="control-label"> Heading <?= $sec2_cards ?><span class="symbol required">*</span></label>
+
+                                        <input type="text" name="sec2_img_card_heading<?= $i ?>" class="form-control" value="<?= $row['sec2_img_card_heading' . $i] ?>" />
 
                                     </div>
 
+
+
+                                    <div class="col-md-12">
+
+                                        <label for="sec2_img_card_tagline<?= $i ?>" class="control-label"> Tagline <?= $sec2_cards ?><span class="symbol required">*</span></label>
+
+                                        <input type="text" name="sec2_img_card_tagline<?= $i ?>" class="form-control" value="<?= $row['sec2_img_card_tagline' . $i] ?>" />
+
+                                    </div>
+
+
+
+                                    <div class="clearfix"></div>
+
                                 </div>
 
-                            <?php endfor ?>
+                            </div>
 
-                        
+                        <?php endfor ?>
+
+
 
                         <div class="clearfix"></div>
 
@@ -541,6 +538,59 @@
 
             </div>
 
+            <h3>Repair Cover</h3>
+
+            <div class="form-group">
+
+
+
+                <div class="col-md-12">
+
+                    <div class="form-group">
+
+
+
+                        <div class="col-md-12">
+
+                            <label for="rc_heading" class="control-label"> Heading <span class="symbol required">*</span></label>
+
+                            <input type="text" name="rc_heading" value="<?= $row['rc_heading'] ?>" class="form-control" required>
+
+                        </div>
+
+                        <div class="clearfix"></div>
+                        <div class="col-md-12">
+
+                            <label for="rc_detail" class="control-label"> Text Block <span class="symbol required">*</span></label>
+
+                            <textarea name="rc_detail" rows="3" class="form-control ckeditor" id="editor"><?= $row['rc_detail'] ?></textarea>
+
+                        </div>
+                        <div class="clearfix"></div>
+
+
+                        <div class="col-md-6">
+
+                            <label for="re_btn_txt" class="control-label"> Button text <span class="symbol required">*</span></label>
+
+                            <input type="text" name="re_btn_txt" class="form-control" value="<?= $row['re_btn_txt'] ?>" />
+
+                        </div>
+
+
+                        <div class="col-md-6">
+
+                            <label for="re_btn_url" class="control-label"> Button Link <span class="symbol required">*</span></label>
+
+                            <input type="text" name="re_btn_url" class="form-control" value="<?= $row['re_btn_url'] ?>" />
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
 
 
             <h3>Section 3</h3>
@@ -579,75 +629,72 @@
 
                         <div class="clearfix"></div>
 
-<br>
+                        <br>
 
                         <div class="col-md-12">
 
-                        <h4> Cards</h4>
+                            <h4> Cards</h4>
 
 
 
                         </div>
 
-                            <?php $sec3_cards = 0;
+                        <?php $sec3_cards = 0;
 
-                            for ($i = 4; $i <= 6; $i++) : ++$sec3_cards; ?>
+                        for ($i = 4; $i <= 6; $i++) : ++$sec3_cards; ?>
 
-                                <div class="col-md-4">
+                            <div class="col-md-4">
 
-                                    <div class="form-group">
+                                <div class="form-group">
 
-                                        <div class="col-md-12">
+                                    <div class="col-md-12">
 
-                                            <div class="panel panel-primary" data-collapsed="0">
+                                        <div class="panel panel-primary" data-collapsed="0">
 
-                                                <div class="panel-heading">
+                                            <div class="panel-heading">
 
-                                                    <div class="panel-title">
+                                                <div class="panel-title">
 
-                                                        Image <?= $sec3_cards ?>
-
-                                                    </div>
-
-                                                    <div class="panel-options">
-
-                                                        <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
-
-                                                    </div>
+                                                    Image <?= $sec3_cards ?>
 
                                                 </div>
 
-                                                <div class="panel-body">
+                                                <div class="panel-options">
 
-                                                    <div class="fileinput fileinput-new" data-provides="fileinput">
+                                                    <a href="#" data-rel="collapse"><i class="entypo-down-open"></i></a>
 
-                                                        <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;background:#ddd" data-trigger="fileinput">
+                                                </div>
 
-                                                            <img src="<?= get_site_image_src("images/", $row['image' . $i]) ?>" alt="--">
+                                            </div>
 
-                                                        </div>
+                                            <div class="panel-body">
 
-                                                        <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
+                                                <div class="fileinput fileinput-new" data-provides="fileinput">
 
-                                                        <div>
+                                                    <div class="fileinput-new thumbnail" style="max-width: 310px; height: 110px;background:#ddd" data-trigger="fileinput">
 
-                                                            <span class="btn btn-white btn-file">
+                                                        <img src="<?= get_site_image_src("images/", $row['image' . $i]) ?>" alt="--">
 
-                                                                <span class="fileinput-new">Select image</span>
+                                                    </div>
 
-                                                                <span class="fileinput-exists">Change</span>
+                                                    <div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 320px; max-height: 160px; line-height: 6px;"></div>
 
-                                                                <input type="file" name="image<?= $i ?>" accept="image/*" <?php if (empty($row['image' . $i])) {
+                                                    <div>
 
-                                                                                                                                echo 'required=""';
+                                                        <span class="btn btn-white btn-file">
 
-                                                                                                                            } ?>>
+                                                            <span class="fileinput-new">Select image</span>
 
-                                                            </span>
+                                                            <span class="fileinput-exists">Change</span>
 
-                                                            <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
+                                                            <input type="file" name="image<?= $i ?>" accept="image/*" <?php if (empty($row['image' . $i])) {
 
-                                                        </div>
+                                                                                                                            echo 'required=""';
+                                                                                                                        } ?>>
+
+                                                        </span>
+
+                                                        <a href="#" class="btn btn-orange fileinput-exists" data-dismiss="fileinput">Remove</a>
 
                                                     </div>
 
@@ -657,61 +704,63 @@
 
                                         </div>
 
-
-
-                                        <div class="clearfix"></div>
-
-
-
-                                        <div class="col-md-12">
-
-                                            <label for="sec3_card_heading<?= $i ?>" class="control-label"> Heading <?= $sec3_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec3_card_heading<?= $i ?>" class="form-control" value="<?= $row['sec3_card_heading' . $i] ?>" />
-
-                                        </div>
+                                    </div>
 
 
 
-                                        <div class="col-md-12">
-
-                                            <label for="sec3_card_tagline<?= $i ?>" class="control-label"> Tagline <?= $sec3_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec3_card_tagline<?= $i ?>" class="form-control" value="<?= $row['sec3_card_tagline' . $i] ?>" />
-
-                                        </div>
+                                    <div class="clearfix"></div>
 
 
 
+                                    <div class="col-md-12">
 
+                                        <label for="sec3_card_heading<?= $i ?>" class="control-label"> Heading <?= $sec3_cards ?><span class="symbol required">*</span></label>
 
-                                        <div class="col-md-12">
-
-                                            <label for="sec3_card_btn_text<?= $i ?>" class="control-label"> Button text <?= $sec3_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec3_card_btn_text<?= $i ?>" class="form-control" value="<?= $row['sec3_card_btn_text' . $i] ?>" />
-
-                                        </div>
-
-
-
-                                        <div class="col-md-12">
-
-                                            <label for="sec3_card_btn_link<?= $i ?>" class="control-label"> Button Link <?= $sec3_cards ?><span class="symbol required">*</span></label>
-
-                                            <input type="text" name="sec3_card_btn_link<?= $i ?>" class="form-control" value="<?= $row['sec3_card_btn_link' . $i] ?>" />
-
-                                        </div>
-
-
-
-                                        <div class="clearfix"></div>
+                                        <input type="text" name="sec3_card_heading<?= $i ?>" class="form-control" value="<?= $row['sec3_card_heading' . $i] ?>" />
 
                                     </div>
 
+
+
+                                    <div class="col-md-12">
+
+                                        <label for="sec3_card_tagline<?= $i ?>" class="control-label"> Tagline <?= $sec3_cards ?><span class="symbol required">*</span></label>
+
+                                        <input type="text" name="sec3_card_tagline<?= $i ?>" class="form-control" value="<?= $row['sec3_card_tagline' . $i] ?>" />
+
+                                    </div>
+
+
+
+
+
+                                    <div class="col-md-12">
+
+                                        <label for="sec3_card_btn_text<?= $i ?>" class="control-label"> Button text <?= $sec3_cards ?><span class="symbol required">*</span></label>
+
+                                        <input type="text" name="sec3_card_btn_text<?= $i ?>" class="form-control" value="<?= $row['sec3_card_btn_text' . $i] ?>" />
+
+                                    </div>
+
+
+
+                                    <div class="col-md-12">
+
+                                        <label for="sec3_card_btn_link<?= $i ?>" class="control-label"> Button Link <?= $sec3_cards ?><span class="symbol required">*</span></label>
+
+                                        <input type="text" name="sec3_card_btn_link<?= $i ?>" class="form-control" value="<?= $row['sec3_card_btn_link' . $i] ?>" />
+
+                                    </div>
+
+
+
+                                    <div class="clearfix"></div>
+
                                 </div>
 
-                            <?php endfor ?>
+                            </div>
+
+                        <?php endfor ?>
 
 
 

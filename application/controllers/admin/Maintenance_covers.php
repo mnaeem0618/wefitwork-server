@@ -27,7 +27,6 @@ class Maintenance_covers extends Admin_Controller
             $save_data = [
                 'service_title' => $vals['service_title'],
                 'title' => $vals['title'],
-                'paystack_plan_code' => $vals['paystack_plan_code'],
                 'price' => $vals['price'],
                 'short_desc' => $vals['short_desc'],
                 'detail' => $vals['detail'],
@@ -96,6 +95,15 @@ class Maintenance_covers extends Admin_Controller
                 $this->master->delete_where('mcover_faqs', array('maintenance_cover_id'=> $id));
                 $faqs = array('question' => $faq['question'], 'answer' => $faq['answer'], 'sort_order' => $faq['sort_order']);
                 saveMcoverFaqs($faqs, $id);
+
+                $mc_prices['type_of_house'] = $vals['type_of_house'];
+                $mc_prices['price'] = $vals['mc_price'];
+                $mc_prices['mc_sort_order'] = $vals['mc_sort_order'];
+
+                unset($vals['type_of_house'], $vals['mc_price'], $vals['mc_sort_order']);
+                $this->master->delete_where('mc_prices', array('maintenance_cover_id'=> $id));
+                $mc_pricess = array('type_of_house' => $mc_prices['type_of_house'], 'price' => $mc_prices['price'], 'sort_order' => $mc_prices['mc_sort_order']);
+                saveMcPrices($mc_pricess, $id);
 
             }
 

@@ -512,17 +512,21 @@ class User extends MY_Controller
             $this->form_validation->set_rules('display_name', 'Dispaly Name', 'trim|required|alpha|min_length[2]|max_length[20]', ['alpha' => 'Dispaly Name should contains only letters and avoid space.', 'min_length' => 'Dispaly Name should contains atleast 2 letters.', 'max_length' => 'Dispaly Name should not be greater than 20 letters.']);
             $this->form_validation->set_rules('phone', 'Phone', 'trim|required');
             $this->form_validation->set_rules('address', 'Address', 'trim|required');
+            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email|callback_is_email_exists', ['valid_email' => 'Please enter a valid email.','is_email_exists' => 'This email is already in use.']);
+
 
             if ($this->form_validation->run() === FALSE) {
                 $res['validationErrors'] = validation_errors();
             } else {
                 $post = html_escape($this->input->post());
                 $mem_id = $this->mem_id;
+                
                 $save_data = [
                     'mem_fname' => ucfirst($post['fname']),
                     'mem_display_name' => ucfirst($post['display_name']),
-                    'mem_phone' => $post['phone'],
-                    'mem_address' => $post['address']
+                    'mem_phone' => str_replace(' ', '', $post['phone']),
+                    'mem_address' => $post['address'],
+                    'mem_email' => $post['email']
                 ];
                 if (isset($_FILES["profile"]["name"]) && $_FILES["profile"]["name"] != "") {
                     $image = upload_file(UPLOAD_PATH . 'members', 'profile');
@@ -553,7 +557,7 @@ class User extends MY_Controller
             $this->form_validation->set_rules('house_type', 'Business Type', 'trim|required');
             $this->form_validation->set_rules('address', 'Employes ', 'trim|required');
             $this->form_validation->set_rules('txn_reference', 'Looking For', 'trim|required');
-            $this->form_validation->set_rules('plan_code', 'Location', 'required');
+            // $this->form_validation->set_rules('plan_code', 'Location', 'required');
             
 
 
@@ -573,7 +577,9 @@ class User extends MY_Controller
                     'house_type' => $post['house_type'], 
                     'address' => $post['address'], 
                     'trxn_reference' => $post['txn_reference'], 
-                    'plan_code' => $post['plan_code'], 
+                    // 'plan_code' => $post['plan_code'], 
+                    'start_date' => date('Y-m-d h:i:s'),
+                    'end_date' => date('Y-m-d h:i:s', strtotime('+1 year')),
                     'created_date' => date('Y-m-d h:i:s'),
                     'status' => 1
 
@@ -617,7 +623,7 @@ class User extends MY_Controller
             $this->api_output['page_title'] = 'Maintenance Requests - ' . $this->data['site_settings']->site_name;
             $this->api_output['member'] = $memData;          
             
-            $purchased_mc = $this->master->getRows('purchased_maint_covers', array('mem_id' => $mem_id));
+            $purchased_mc = $this->master->getRows('purchased_maint_covers', array('mem_id' => $mem_id, 'end_date >' => date('Y-m-d h:i:s')));
             if(empty($purchased_mc)){
                 $this->api_output['mc_purchased_status'] = false;
                 $this->api_output['mc_requests'] = (Object)[];
@@ -664,8 +670,8 @@ class User extends MY_Controller
             $this->api_output['page_title'] = 'New Request - ' . $this->data['site_settings']->site_name;
             $this->api_output['member'] = $memData;          
             
-            $purchased_mc = $this->master->getRows('purchased_maint_covers', array('mem_id' => $mem_id));
-            
+            $purchased_mc = $this->master->getRows('purchased_maint_covers', array('mem_id' => $mem_id, 'end_date >' => date('Y-m-d h:i:s')));
+            // $this->api_output['query'] = $this->db->last_query();
             foreach($purchased_mc as $p)
 
 
@@ -1110,7 +1116,7 @@ class User extends MY_Controller
                 $mem_id = $this->mem_id;
                 $save_data = [
                     'mem_fname' => ucfirst($post['fname']),
-                    'mem_phone' => $post['phone'],
+                    'mem_phone' => str_replace(' ', '', $post['phone']),
                     'mem_address' => $post['address'],
                     'mem_bio' => $post['mem_bio']
                 ];
@@ -1154,7 +1160,7 @@ class User extends MY_Controller
                 $save_data = [
                     'display_name' => $post['display_name'],
                     'business_name' => $post['business_name'],
-                    'business_phone' => $post['business_phone'],
+                    'business_phone' => str_replace(' ', '', $post['phone']),
                     'specialization' => $post['specialization'],
                     'business_type' => $post['business_type'],
                     'no_of_employes' => $post['no_of_employes'],
@@ -1699,6 +1705,53 @@ class User extends MY_Controller
         }
     }
 
+    public function is_email_exists($email){
+        $email = $this->master->getRow('members', ['mem_email'=> $email]);
+		if(empty($email)){
+			return TRUE;	
+		}
+		return FALSE;
+    }
 
+    function save_mem_email()
+    {
+
+        if ($this->input->post()) {
+            $res = [];
+            $res['status'] = 0;
+            $res['validationErrors'] = '';
+          
+            $this->form_validation->set_rules('email', 'Email', 'trim|required|valid_email|callback_is_email_exists', ['valid_email' => 'Please enter a valid email.','is_email_exists' => 'This email is already in use.']);
+
+
+            if ($this->form_validation->run() === FALSE) {
+                $res['validationErrors'] = validation_errors();
+            } else {
+                $post = html_escape($this->input->post());
+                $mem_id = $this->mem_id;
+                
+                $save_data = [
+                    'mem_email' => $post['email']
+                ];
+                
+                $mem_id = $this->member->save($save_data, $mem_id);
+                if ($mem_id) {
+                    $row = $this->member->getMemData($mem_id);
+                    $result = $this->my_paystack_lib->create_customer($row->mem_email, $row->mem_fname);
+                            $customer_data = json_decode($result);
+                        // pr($result);
+                            if($customer_data->data->customer_code !== '' || $customer_data->data->customer_code){
+                                $this->member->update(['mem_paystack_customer_code' => $customer_data->data->customer_code], array('mem_id' => $mem_id));
+                                $res['customer_code'] = $customer_data->data->customer_code;
+                            }else{
+                                $res['customer_creation'] = false;
+                            }
+                    $res['status'] = 1;
+                }
+            }
+            echo json_encode($res);
+            exit;
+        }
+    }
 
 }

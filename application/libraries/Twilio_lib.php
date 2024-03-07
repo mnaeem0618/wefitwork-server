@@ -12,7 +12,7 @@ class Twilio_lib {
     public function __construct() {
         // Initialize Twilio client
         $accountSid = 'AC0d0dffe9c8e7b390bfcb237aacf29fa2';
-        $authToken = '828541afc98968bebd4a51c5b7362ff2';
+        $authToken = '420a8aee39996f0ec7b1b7a450ff2aa6';
         $this->twilio = new Client($accountSid, $authToken);
     }
 

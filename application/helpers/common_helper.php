@@ -117,6 +117,7 @@ function upload_image($path, $field_name, $pre_fix = 'image'){
 
 
 function upload_file($path, $field_name, $type = 'image', $custom_name = '', $size = 2100000){
+    // pr($path);
     $type_arr = array('image' => 'gif|jpg|jpeg|png|svg', 'file' => 'gif|jpg|jpeg|png|pdf|doc|docx|xlsx|word|xls|csv|txt|text|zip|7zip|rar', 'attach' => 'gif|jpg|jpeg|png|pdf|doc|docx|xlsx|word|xls|csv|txt|text', 'audio' => 'mp3', 'video' => 'mp4|webm');
     $type = $type_arr[$type];
     $stamp = empty($custom_name) ? (md5(rand(100, 1000)) . '_' . time() . '_' . rand(1111, 9999)) : $custom_name;
@@ -129,6 +130,7 @@ function upload_file($path, $field_name, $type = 'image', $custom_name = '', $si
     $CI->load->library('upload', $config);
     $CI->upload->initialize($config);
 
+    // pr($CI->upload);
     if (!$CI->upload->do_upload($field_name)) {
         $image['error'] = $CI->upload->display_errors();
         return $image;

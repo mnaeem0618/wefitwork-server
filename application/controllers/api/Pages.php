@@ -73,6 +73,8 @@ class Pages extends MY_Controller
             $this->api_output['most_searched'] = $this->master->getRows('services', ['status' => 1, 'searched' => 1], '', '', 'ASC', 'id');
             $this->api_output['testimonials'] = $this->master->getRows('testimonials', ['status' => 1], '', '', 'desc', 'id');
             $this->api_output['services'] = $this->master->getRows('services', array('status' => 1));
+            $this->api_output['states'] = $this->master->getRows('nigeria_states', array('status' => 1));
+
 
 
             http_response_code(200);
@@ -318,6 +320,9 @@ class Pages extends MY_Controller
             $this->api_output['meta_desc'] = json_decode($meta->content);
 
             $this->api_output['maintenance_cover'] = $mc;
+            $this->api_output['type_prices'] = $this->master->getRows('mc_prices', array('maintenance_cover_id' => $mc->id),'', '', "ASC", 'sort_order');
+
+
             $this->api_output['included'] = getIncluded($mc->id);
 
 
@@ -932,12 +937,16 @@ class Pages extends MY_Controller
 
                 ];
 
+                // pr($_FILES["doc_file"]['name']);
+
                 if (isset($_FILES["doc_file"]["name"]) && $_FILES["doc_file"]["name"] != "") {
+                    // pr(UPLOAD_PATH);
                     $doc_file = upload_file(UPLOAD_PATH . 'documents', 'doc_file', 'file');
                     // generate_thumb(UPLOAD_PATH.'members/',UPLOAD_PATH.'members/',$image['file_name'],100,'thumb_');
-                    // pr($image);
+                    // pr($doc_file);
                     $save_data['doc_file'] = $doc_file['file_name'];
                 }
+                // pr($save_data);
 
                 $work_scope_id = $this->master->save('work_scopes', $save_data);
 
@@ -1377,5 +1386,23 @@ class Pages extends MY_Controller
             echo json_encode($res);
             exit;
         }
+    }
+
+    function check_twilio(){
+        $post = $this->input->post();
+        $this->load->library('twilio_lib');
+
+
+        $sendVerification = $this->twilio_lib->sendVerificationCode($post['phone']);
+        pr($sendVerification);
+    }
+
+    function check_twilio_verify_code(){
+        $post = $this->input->post();
+        $this->load->library('twilio_lib');
+
+
+        $verificationResult = $this->twilio_lib->verifyCode($post['email'], $post['code']);
+        pr($verificationResult);
     }
 }

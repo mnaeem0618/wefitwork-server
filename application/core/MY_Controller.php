@@ -290,6 +290,16 @@ class MY_Controller extends CI_Controller {
 		$this->send_email($msg_body, $emailto, $subject);
     }
 
+    function send_signup_code($mem_data){
+		$emailto  = $mem_data['email'];
+        $subject  = $this->data['site_settings']->site_name." - Email Verification";
+        $this->data['mem_data'] = $mem_data;
+        $msg_body = $this->load->view('includes/email_verify_code', $this->data, TRUE);
+        // pr($msg_body);
+		$this->send_email($msg_body, $emailto, $subject);
+
+    }
+
 
 
     function send_verification_confirmation($mem_data){

@@ -54,6 +54,9 @@ $route['api/checkout-page/(:any)']         = 'api/pages/checkout_page/$1';
 
 
 $route['api/get-mc-sub-services']          = 'api/pages/get_mc_sub_services';
+$route['api/check_twilio']          = 'api/pages/check_twilio';
+$route['api/check_twilio_verify_code'] = 'api/pages/check_twilio_verify_code';
+
 
 
 
@@ -99,6 +102,8 @@ $route['api/user/add-request-page']         = 'api/user/add_request_page';
 $route['api/user/add-maintenance-cover-request']         = 'api/user/add_maintenance_cover_request';
 $route['api/user/buyer-maintenance-request-detail']         = 'api/user/buyer_maintenance_request_detail';
 $route['api/user/delete-maintenance-cover-request']         = 'api/user/delete_maintenance_cover_request';
+$route['api/user/save-mem-email']         = 'api/user/save_mem_email';
+
 
 
 

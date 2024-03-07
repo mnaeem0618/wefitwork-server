@@ -22,7 +22,7 @@ class My_paystack_lib
 		$fields = [
 			"email" => $email,
 			"first_name" => $name,
-			
+
 		];
 
 		$fields_string = http_build_query($fields);
@@ -54,7 +54,7 @@ class My_paystack_lib
 		$curl = curl_init();
 
 		curl_setopt_array($curl, array(
-			CURLOPT_URL => "https://api.paystack.co/customer/".$customer_code,
+			CURLOPT_URL => "https://api.paystack.co/customer/" . $customer_code,
 			CURLOPT_RETURNTRANSFER => true,
 			CURLOPT_ENCODING => "",
 			CURLOPT_MAXREDIRS => 10,
@@ -62,7 +62,7 @@ class My_paystack_lib
 			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
 			CURLOPT_CUSTOMREQUEST => "GET",
 			CURLOPT_HTTPHEADER => array(
-				"Authorization: Bearer ".$this->secret_key,
+				"Authorization: Bearer " . $this->secret_key,
 				"Cache-Control: no-cache",
 			),
 		));
@@ -77,5 +77,37 @@ class My_paystack_lib
 		} else {
 			return $response;
 		}
+	}
+
+	function create_plan($plan_name)
+	{
+		$url = "https://api.paystack.co/plan";
+
+		$fields = [
+			'name' => "Monthly retainer",
+			'interval' => "monthly",
+			'amount' => "500000"
+		];
+
+		$fields_string = http_build_query($fields);
+
+		//open connection
+		$ch = curl_init();
+
+		//set the url, number of POST vars, POST data
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $fields_string);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+			"Authorization: Bearer SECRET_KEY",
+			"Cache-Control: no-cache",
+		));
+
+		//So that curl_exec returns the contents of the cURL; rather than echoing it
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+		//execute post
+		$result = curl_exec($ch);
+		echo $result;
 	}
 }
